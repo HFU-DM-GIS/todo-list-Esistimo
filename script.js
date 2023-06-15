@@ -4,7 +4,6 @@ let wait = 3000;
 const form = document.querySelector("form");
 const table = document.querySelector("table");
 
-
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   const todo = document.querySelector("#todo").value.trim();
