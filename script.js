@@ -1,9 +1,10 @@
-let todos = [];
+let todos = JSON.parse(localStorage.getItem("todos")) || [];
 let wait = 3000;
 
 const form = document.querySelector("form");
 const table = document.querySelector("table");
 
+updateTable();
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -14,6 +15,7 @@ form.addEventListener("submit", (event) => {
   }
   todos.push(todo);
   updateTable();
+  saveTodosToStorage(); 
   document.querySelector("#todo").value = "";
 });
 
@@ -60,14 +62,14 @@ function updateTable() {
     </tr>
     ${todos
       .map(
-        (todo) => `
+        (todo,index) => `
         <tr>
           <td>
             <input type="checkbox" id="${todo}" onchange="toggleTodoStatus('${todo}')" />
             <label for="${todo}">${todo}</label>
           </td>
           <td>
-            <button onclick="deleteTodo('${todo}')" class="fa-solid fa-trash-can"></button>
+            <button onclick="deleteTodo('${index}')" class="fa-solid fa-trash-can"></button>
           </td>
         </tr>
       `
@@ -79,6 +81,8 @@ function updateTable() {
       </td>
     </tr>
   `;
+  saveTodosToStorage();
+  
 }
 
 
@@ -89,24 +93,32 @@ function deleteSelectedTodos() {
   selectedTodos.forEach((todo) => {
     const index = todos.findIndex((t) => t === todo);
     if (index !== -1) {
-      todos.splice(index, 1);
+      todos.splice(index, 1);/*Gleicht ab ob ELement im Array vorhanden ist, falls ja,
+      gibt er die Stelle des Arrays zurrück, andererfalls gibt er den Wert -1 zurrück.
+      Wenn der Index nicht -1 ist (nicht gefunden wird), dann wird TOdo gelöscht.
+      Wenn der Wert höher als -1 ist, dann splice er.*/
     }
   });
   
   updateTable();
 }
-function deleteTodo(todo) {
-  const index = todos.findIndex((t) => t === todo);
+function deleteTodo(todo,index) {
+ //const index = todos.findIndex((t) => t === todo);   /*Gleiches delete-Prinzip wie bei checkbox*/
   if (index !== -1) {
     todos.splice(index, 1);
     updateTable();
   }
 }
 
-function TodoDone(i){
-  const todoElement = document.querySelector(`#todo-$(i)`);
-  todoElement.style.textDecoration = "line-through";
+
+function saveTodosToStorage() {
+  localStorage.setItem("todos", JSON.stringify(todos));
 }
+
+// function TodoDone(i){
+//   const todoElement = document.querySelector(`#todo-$(i)`);
+//   todoElement.style.textDecoration = "line-through";
+// }
 
 // function TodoDone(todo, i){
 //   const checkbox = ;
