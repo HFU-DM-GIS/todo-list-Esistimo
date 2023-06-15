@@ -41,12 +41,12 @@ input[type="submit"]:hover {
   background-color: #45a049;
 }
 
-  table {
-    margin-top: 50px;
-    border-collapse: collapse;
-    width: 50%;
-    background-color: #fff;
-  }
+table {
+  margin-top: 50px;
+  border-collapse: collapse;
+  width: 50%;
+  background-color: #fff;
+}
 
 th,
 td {
@@ -60,14 +60,10 @@ th {
   color: #4d4d4d;
 }
 
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
 
-<<<<<<< HEAD
-=======
-/* Neues unten Eingefügt */
->>>>>>> bb7a65aa05fa318462809087aeca40de82d5be88
 .popup {
   position: fixed;
   top: 50%;
@@ -76,4 +72,4 @@ th {
   padding: 20px;
   background-color: #fff;
   border: 2px solid #4caf50;
-  }
+}
