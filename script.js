@@ -1,25 +1,28 @@
-let todos = JSON.parse(localStorage.getItem("todos")) || [];
-let wait = 3000;
+let todos = JSON.parse(localStorage.getItem("todos")) || []; // Laden der gespeicherten Todos aus dem Local Storage oder Initialisierung als leeres Array
+let wait = 3000; // Wartezeit fÃ¼r die Anzeige des Popups
 
-const form = document.querySelector("form");
-const table = document.querySelector("table");
+const form = document.querySelector("form"); // Selektieren des Formulars
+const table = document.querySelector("table"); // Selektieren der Tabelle
 
-updateTable();
+updateTable(); // Aktualisieren der Tabelle beim Laden der Seite
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", (event) => { // HinzufÃ¼gen eines Event Listeners fÃ¼r das Absenden des Formulars
   event.preventDefault();
-  const todo = document.querySelector("#todo").value.trim();
-  if (todo == "") {
+  const todoInput = document.querySelector("#todo"); // Selektieren des Eingabefelds fÃ¼r die ToDo
+  const todo = todoInput.value.trim(); // Extrahieren des ToDo-Werts und Entfernen von Leerzeichen
+
+  if (todo === "") { // ÃœberprÃ¼fen, ob eine ToDo eingegeben wurde
     alert("Bitte gebe eine ToDo ein!");
     return;
   }
-  todos.push(todo);
-  updateTable();
-  saveTodosToStorage();
-  document.querySelector("#todo").value = "";
+
+  todos.push({ task: todo, completed: false }); // HinzufÃ¼gen der ToDo als Objekt mit Status "completed: false" zum Array
+  updateTable(); // Aktualisieren der Tabelle
+  saveTodosToStorage(); // Speichern der Todos im Local Storage
+  todoInput.value = ""; // ZurÃ¼cksetzen des Eingabefelds
 });
 
-async function fetchMotivationalQuote() {
+async function fetchMotivationalQuote() { // Funktion zum Abrufen eines motivierenden Zitats von einer API
   try {
     const response = await fetch("https://api.quotable.io/random");
     const data = await response.json();
@@ -30,7 +33,7 @@ async function fetchMotivationalQuote() {
   }
 }
 
-function showMotivationalQuotePopup(quote) {
+function showMotivationalQuotePopup(quote) { // Funktion zum Anzeigen eines Popups mit dem motivierenden Zitat
   const popup = document.createElement("div");
   popup.classList.add("popup");
   popup.textContent = quote;
@@ -42,36 +45,28 @@ function showMotivationalQuotePopup(quote) {
   }, wait);
 }
 
-document.addEventListener("change", function (event) {
+document.addEventListener("change", function (event) { // HinzufÃ¼gen eines Event Listeners fÃ¼r Ã„nderungen im Dokument (z.B. Checkbox-Ã„nderungen)
   const checkbox = event.target;
   if (checkbox.matches('input[type="checkbox"]')) {
-    // always toggle strike-through
-
-    // fetch quote only if checked
-    if (checkbox.checked) {
-      fetchMotivationalQuote().then((quote) => {
-        if (quote) {
-          showMotivationalQuotePopup(quote);
-        }
-      });
-    }
+    const index = checkbox.dataset.index; // Abrufen des Index-Werts aus dem dataset der Checkbox
+    toggleTodoStatus(index); // Aufrufen der Funktion zum Wechseln des Status der ToDo anhand des Index-Werts
   }
 });
 
-function toggleTodoStatus(todo) {
-  const index = todos.findIndex((t) => t === todo);
-  console.log(index);
-  if (index !== -1) {
-    const todoElement = document.querySelector(`#todo-${index}`);
-    if (todoElement.style.textDecoration === "line-through") {
-      todoElement.style.textDecoration = "none";
-    } else {
-      todoElement.style.textDecoration = "line-through";
-    }
+function toggleTodoStatus(index) { // Funktion zum Wechseln des Status der ToDo anhand des Index-Werts
+  if (index !== undefined) {
+    //const todoElement = document.querySelector(`#todo-${index}Â´)
+    //if (todoElement.style.textDecoration === "line-through")
+      //todoElement.style.textDecoration = "none";
+      //}else{
+      //todoElement.style.textDecoration = "line-through"
+    todos[index].completed = !todos[index].completed; // Wechseln des "completed"-Status der ToDo 
+    updateTable(); // Aktualisieren der Tabelle
+    saveTodosToStorage(); // Speichern der Todos im Local Storage 
   }
 }
 
-function updateTable() {
+function updateTable() { // Funktion zum Aktualisieren der Tabelle
   table.innerHTML = `
     <tr>
       <th>ToDo</th>
@@ -82,11 +77,11 @@ function updateTable() {
         (todo, index) => `
         <tr id="todo-${index}">
           <td>
-            <input type="checkbox" id="${todo}" onchange="toggleTodoStatus('${todo}')" />
-            <label for="${todo}" >${todo}</label>
+            <input type="checkbox" id="todo-${index}" data-index="${index}" ${todo.completed ? "checked" : ""}>
+            <label for="todo-${index}" ${todo.completed ? 'style="text-decoration: line-through;"' : ""}>${todo.task}</label>
           </td>
           <td>
-            <button onclick="deleteTodo('${index}')" class="fa-solid fa-trash-can"></button>
+            <button onclick="deleteTodo(${index})" class="fa-solid fa-trash-can"></button>
           </td>
         </tr>
       `
@@ -98,50 +93,32 @@ function updateTable() {
       </td>
     </tr>
   `;
-  //saveTodosToStorage();
 }
 
-function deleteSelectedTodos() {
-  const selectedTodos = Array.from(
+function deleteSelectedTodos() { // Funktion zum LÃ¶schen der ausgewÃ¤hlten ToDos
+  const selectedTodos = Array.from(//todos.completed
     document.querySelectorAll("input[type='checkbox']:checked")
-  ).map((checkbox) => checkbox.id);
+  ).map((checkbox) => checkbox.dataset.index); // Erstellen eines Arrays mit den Index-Werten der ausgewÃ¤hlten ToDos
+  console.log(selectedTodos)
 
-  selectedTodos.forEach((todo) => {
-    const index = todos.findIndex((t) => t === todo);
-    if (index !== -1) {
-      todos.splice(
-        index,
-        1
-      ); /*Gleicht ab ob ELement im Array vorhanden ist, falls ja,
-      gibt er die Stelle des Arrays zurrück, andererfalls gibt er den Wert -1 zurrück.
-      Wenn der Index nicht -1 ist (nicht gefunden wird), dann wird TOdo gelöscht.
-      Wenn der Wert höher als -1 ist, dann splice er.*/
-    }
-  });
+  for(let i = selectedTodos.length -1; i>=0; i--)
+  { let index = selectedTodos[i];
+      todos.splice(index, 1); // Entfernen der ausgewÃ¤hlten ToDos aus dem Array
+    
+  }
 
-  updateTable();
+  updateTable(); // Aktualisieren der Tabelle
+  saveTodosToStorage(); // Speichern der Todos im Local Storage
 }
-function deleteTodo(todo, index) {
-  //const index = todos.findIndex((t) => t === todo);   /*Gleiches delete-Prinzip wie bei checkbox*/
-  if (index !== -1) {
-    todos.splice(index, 1);
-    updateTable();
+
+function deleteTodo(index) { // Funktion zum LÃ¶schen einer ToDo anhand des Index-Werts
+  if (index !== undefined) {
+    todos.splice(index, 1); // Entfernen der ToDo aus dem Array
+    updateTable(); // Aktualisieren der Tabelle
+    saveTodosToStorage(); // Speichern der Todos im Local Storage
   }
 }
 
-function saveTodosToStorage() {
-  console.log("Saving todos to localStorage");
+function saveTodosToStorage() { // Funktion zum Speichern der Todos im Local Storage
   localStorage.setItem("todos", JSON.stringify(todos));
 }
-
-// function TodoDone(i){
-//   const todoElement = document.querySelector(`#todo-$(i)`);
-//   todoElement.style.textDecoration = "line-through";
-// }
-
-// function TodoDone(todo, i){
-//   const checkbox = ;
-//   const TodoDone = text-decoration: "line-through";
-//   if(i == )
-// }
-// Keine Ahnung wie man eine ToDo durchstreichen lässt, sobald man die Checkbox angeklickt hat
